@@ -1,5 +1,9 @@
 package com.example.labyrinthmarblegame
 
+import android.content.Context
+import android.content.pm.ActivityInfo
+import android.hardware.SensorManager
+import android.opengl.GLSurfaceView
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -27,15 +31,23 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.runtime.*
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
+    private lateinit var gameLogic: MarbleGameLogic
+    private lateinit var sensorManager: SensorManager
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT // Lock orientation?
 
         val database = MarbleGameDatabase.getDatabase(applicationContext)
         val repository = MarbleGameRepository(database.marbleGameDao())
+
+        sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
+        gameLogic = MarbleGameLogic(this) // This now handles sensors internally
 
         val viewModel = ViewModelProvider(
             this,
@@ -43,7 +55,6 @@ class MainActivity : ComponentActivity() {
         )[MarbleGameViewModel::class.java]
 
         // Insert test scores when app launches
-        // Comment out if you don't need
         insertTestScores(viewModel)
 
         setContent {
@@ -131,18 +142,12 @@ fun HomeScreen(navController: NavController) {
 
 @Composable
 fun GameScreen() {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.Black),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = "Game Screen (Coming Soon)",
-            fontSize = 30.sp,
-            color = Color.White
-        )
-    }
+    AndroidView(
+        factory = { context ->
+            MarbleGameView(context)
+        },
+        modifier = Modifier.fillMaxSize()
+    )
 }
 
 @Composable
