@@ -80,7 +80,7 @@ fun AppNavigation(viewModel: MarbleGameViewModel) {
 
     NavHost(navController, startDestination = "home") {
         composable("home") { HomeScreen(navController) }
-        composable("game") { GameScreen() }
+        composable("game") { GameScreen(navController) }
         composable("highscores") { HighscoreScreen(viewModel = viewModel) }
     }
 }
@@ -141,7 +141,7 @@ fun HomeScreen(navController: NavController) {
 }
 
 @Composable
-fun GameScreen() {
+fun GameScreen(navController: NavController) {
     AndroidView(
         factory = { context ->
             MarbleGameView(context)

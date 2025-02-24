@@ -1,5 +1,6 @@
 package com.example.labyrinthmarblegame
 
+import android.app.Activity
 import android.content.Context;
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -25,29 +26,35 @@ data class GameEntity(
     var scale: Vector2,
     var rotation: Float,
     var color: Vector3,
-    var texture: Bitmap? = null // Reference to texture (mipmap)
+    var texture: Bitmap? = null,
+    //var isTiled: Boolean,
+    //var tilesX: Int,      // How many times to repeat texture horizontally
+    //var tilesY: Int       // How many times to repeat texture vertically
 );
 
 class MarbleGameLogic(private val context: Context) : SensorEventListener {
     val entities = mutableListOf<GameEntity>();
-    private var playerVelocity = Vector2(0f, 0f);
+    private var gameLevels = MarbleGameLevels(context)
+
     private var lastFrameTime = System.nanoTime();
+
     private val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager;
+    private val collisionSystem = CollisionSystem()
+
+    private var currentLevel = gameLevels.Level1  // Start with level 1
+    private var currentLevelNumber = 1
+
+    private var playerVelocity = Vector2(0f, 0f)
     private val acceleration = Vector2(0f, 0f)
     private val friction = 0.98f // Slows velocity over time (probably don't need this tbh)
     private val gravityFactor = 5f // Adjust as needed for responsiveness
+    private val playerStartingPosition = Vector2(0f, 0f)
+    private var playerStartingScale = Vector2(0.5f, 0.5f)
 
-    // Boundary variables
-    private val yMin = -10f  // Top
-    private val yMax = 8f    // Bottom
-    private val xMin = -5f
-    private val xMax = 5f
-    private val wallThickness = 1f
-
-    // Level dimensions calculated from boundaries
-    private val levelWidth = xMax - xMin
-    private val levelHeight = yMax - yMin
-    private val levelCenterY = (yMax + yMin) / 2
+    private var isPlayerDead = false
+    private var isPlayerReviving = false
+    private var animationTimer = 0f
+    private val animationDuration = 0.5f
 
     init {
         initializeEntities();
@@ -87,60 +94,15 @@ class MarbleGameLogic(private val context: Context) : SensorEventListener {
     }
 
     private fun initializeEntities() {
-        // Add these in draw order, later ones are drawn on top
-        val wallPositions = listOf(
-            Vector2(0f, yMin),         // Top wall
-            Vector2(0f, yMax),          // Bottom wall
-            Vector2(xMin, levelCenterY),   // Left wall
-            Vector2(xMax, levelCenterY)    // Right wall
-        )
-        val wallScales = listOf(
-            Vector2(levelWidth, wallThickness),  // Top (full width)
-            Vector2(levelWidth, wallThickness),  // Bottom (full width)
-            Vector2(wallThickness, levelHeight), // Left
-            Vector2(wallThickness, levelHeight)  // Right
-        )
+        // Clear existing entities
+        entities.clear()
 
-        // Add floor
-        entities.add(GameEntity(
-            name = "Floor",
-            activeState = true,
-            collisionLayer = 2,
-            velocity = Vector2(0f, 0f),
-            position = Vector2(0f, levelCenterY),
-            scale = Vector2(levelWidth, levelHeight),
-            rotation = 0f,
-            color = Vector3(0.5f, 0.5f, 0.5f)
-            // texture remains null so a solid color is drawn
-        ))
+        // Create entities from level data
+        entities.addAll(gameLevels.createEntities(currentLevel))
 
-        // Add walls
-        wallPositions.forEachIndexed { index, pos ->
-            entities.add(GameEntity(
-                name = "Wall$index",
-                activeState = true,
-                collisionLayer = 2,
-                velocity = Vector2(0f, 0f),
-                position = pos,
-                scale = wallScales[index],
-                rotation = 0f,
-                color = Vector3(1f, 1f, 1f)
-                // texture remains null so a solid color is drawn
-            ))
-        }
-
-        // Add player (marble) with the bitmap assigned
-        entities.add(GameEntity(
-            name = "Player",
-            activeState = true,
-            collisionLayer = 1,
-            velocity = Vector2(0f, 0f),
-            position = Vector2(0f, 0f),
-            scale = Vector2(1f, 1f),
-            rotation = 0f,
-            color = Vector3(1f, 1f, 1f),
-            texture = BitmapFactory.decodeResource(context.resources, R.drawable.ball_blue_small)
-        ))
+        // Store starting position for hole collisions
+        playerStartingPosition.x = currentLevel.playerStart.x
+        playerStartingPosition.y = currentLevel.playerStart.y
     }
 
     private fun registerSensors() {
@@ -153,12 +115,54 @@ class MarbleGameLogic(private val context: Context) : SensorEventListener {
         val deltaTime = (currentTime - lastFrameTime) / 1_000_000_000f
         lastFrameTime = currentTime
 
-        entities.find { it.name == "Player" }?.let { player ->
+        val player = entities.find { it.name == "Player" } ?: return
+
+        // Shrink player while they're falling into a hole
+        if (isPlayerDead) {
+            animationTimer += deltaTime
+            player.scale.x = playerStartingScale.x * (1f - (animationTimer / animationDuration))
+            player.scale.y = playerStartingScale.y * (1f - (animationTimer / animationDuration))
+            if (animationTimer >= animationDuration) {
+                // Finished shrinking
+                isPlayerDead = false
+                animationTimer = 0f
+                player.scale.x = 0f
+                player.scale.y = 0f
+
+                // Reset player position and velocities
+                player.position.x = playerStartingPosition.x
+                player.position.y = playerStartingPosition.y
+                playerVelocity.x = 0f
+                playerVelocity.y = 0f
+                acceleration.x = 0f
+                acceleration.y = 0f
+
+                // Start reviving (growing back)
+                isPlayerReviving = true
+            }
+        } else if (isPlayerReviving) {
+            // Enlarge player while they're reviving
+            animationTimer += deltaTime
+            player.scale.x = (animationTimer / animationDuration) * playerStartingScale.x
+            player.scale.y = (animationTimer / animationDuration) * playerStartingScale.y
+            if (animationTimer >= animationDuration) {
+                // Finished reviving
+                isPlayerReviving = false
+                animationTimer = 0f
+                player.scale.x = playerStartingScale.x
+                player.scale.y = playerStartingScale.y
+            }
+        } else {
+            // Regular game logic (movement, collision, etc.)
+            // Store previous position for collision resolution
+            val previousX = player.position.x
+            val previousY = player.position.y
+
             // Apply acceleration to velocity
             playerVelocity.x += acceleration.x * gravityFactor * deltaTime
             playerVelocity.y += acceleration.y * gravityFactor * deltaTime
 
-            // Apply friction (kinda buggy)
+            // Apply friction
             playerVelocity.x *= friction
             playerVelocity.y *= friction
 
@@ -166,23 +170,67 @@ class MarbleGameLogic(private val context: Context) : SensorEventListener {
             player.position.x += playerVelocity.x * deltaTime
             player.position.y += playerVelocity.y * deltaTime
 
-            // Collision detection with walls (hardcoded)
-            player.position.x = player.position.x.coerceIn(xMin + wallThickness, xMax - wallThickness)
-            if (player.position.x == xMin + wallThickness || player.position.x == xMax - wallThickness) {
-                playerVelocity.x = 0f
-                acceleration.x = 0f
+            // Collision handling
+            val playerCircle = player.toCircle()
+            entities.filter { it != player }.forEach { entity ->
+                when (entity.collisionLayer) {
+                    0 -> { // Collision with walls
+                        val wallRect = entity.toRectangle()
+                        collisionSystem.checkCircleRectangleCollision(playerCircle, wallRect)?.let { (collisionPoint, normal) ->
+                            player.position.x = previousX
+                            player.position.y = previousY
+                            if (kotlin.math.abs(normal.x) > 0.1f) {
+                                playerVelocity.x *= -0.5f
+                                acceleration.x = 0f
+                            }
+                            if (kotlin.math.abs(normal.y) > 0.1f) {
+                                playerVelocity.y *= -0.5f
+                                acceleration.y = 0f
+                            }
+                        }
+                    }
+                    1 -> { // Hole
+                        val otherCircle = entity.toCircle()
+                        otherCircle.radius -= 0.2f
+                        if (collisionSystem.checkCircleCircleCollision(playerCircle, otherCircle) && !isPlayerDead && !isPlayerReviving) {
+                            // Start shrinking animation when player touches a hole
+                            playerStartingScale.x = player.scale.x
+                            playerStartingScale.y = player.scale.y
+                            isPlayerDead = true
+                            animationTimer = 0f
+                        }
+                    }
+                    2 -> { // Goal
+                        val otherCircle = entity.toCircle()
+                        if (collisionSystem.checkCircleCircleCollision(playerCircle, otherCircle)) {
+                            loadNextLevel()
+                        }
+                    }
+                }
             }
-
-            player.position.y = player.position.y.coerceIn(yMin + wallThickness, yMax - wallThickness)
-            if (player.position.y == yMin + wallThickness || player.position.y == yMax - wallThickness) {
-                playerVelocity.y = 0f
-                acceleration.y = 0f
-            }
-
-            //println("Acceleration: (${acceleration.x}, ${acceleration.y})")
-            //println("Velocity: (${playerVelocity.x}, ${playerVelocity.y})")
-            //println("Position: (${player.position.x}, ${player.position.y})")
         }
+    }
+
+    // Method to load next level
+    private fun loadNextLevel() {
+        currentLevelNumber++
+        // Select the next level based on number
+        currentLevel = when (currentLevelNumber) {
+            1 -> gameLevels.Level1
+            2 -> gameLevels.Level2
+            // Add more levels here as needed
+            else -> {
+                // Completed all levels
+                // Need a way to return
+                return
+            }
+        }
+        // Reset player and reload entities
+        initializeEntities()
+        // Reset player velocity
+        playerVelocity = Vector2(0f, 0f)
+        acceleration.x = 0f
+        acceleration.y = 0f
     }
 
     override fun onSensorChanged(event: SensorEvent?) {
