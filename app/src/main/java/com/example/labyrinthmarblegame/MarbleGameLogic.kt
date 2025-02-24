@@ -1,22 +1,22 @@
 package com.example.labyrinthmarblegame
 
 import android.app.Activity
-import android.content.Context;
+import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.Color;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
-import android.view.Gravity;
-import android.view.ViewGroup.LayoutParams;
-import android.widget.Button;
-import android.widget.FrameLayout;
+import android.graphics.Color
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
+import android.view.Gravity
+import android.view.ViewGroup.LayoutParams
+import android.widget.Button
+import android.widget.FrameLayout
 
 // Data classes for game entities
-data class Vector2(var x: Float, var y: Float);
-data class Vector3(var r: Float, var g: Float, var b: Float);
+data class Vector2(var x: Float, var y: Float)
+data class Vector3(var r: Float, var g: Float, var b: Float)
 data class GameEntity(
     var name: String,
     var activeState: Boolean,
@@ -30,15 +30,15 @@ data class GameEntity(
     //var isTiled: Boolean,
     //var tilesX: Int,      // How many times to repeat texture horizontally
     //var tilesY: Int       // How many times to repeat texture vertically
-);
+)
 
 class MarbleGameLogic(private val context: Context) : SensorEventListener {
-    val entities = mutableListOf<GameEntity>();
+    val entities = mutableListOf<GameEntity>()
     private var gameLevels = MarbleGameLevels(context)
 
-    private var lastFrameTime = System.nanoTime();
+    private var lastFrameTime = System.nanoTime()
 
-    private val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager;
+    private val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
     private val collisionSystem = CollisionSystem()
 
     private var currentLevel = gameLevels.Level1  // Start with level 1
@@ -57,8 +57,8 @@ class MarbleGameLogic(private val context: Context) : SensorEventListener {
     private val animationDuration = 0.5f
 
     init {
-        initializeEntities();
-        registerSensors();
+        initializeEntities()
+        registerSensors()
     }
 
     fun createButtons(context: Context): List<Button> {
@@ -106,8 +106,9 @@ class MarbleGameLogic(private val context: Context) : SensorEventListener {
     }
 
     private fun registerSensors() {
-        val gyroscope = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
-        sensorManager.registerListener(this, gyroscope, SensorManager.SENSOR_DELAY_GAME);
+        // Use accelerometer instead of gyroscope
+        val accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
+        sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_GAME)
     }
 
     fun update() {
@@ -234,9 +235,11 @@ class MarbleGameLogic(private val context: Context) : SensorEventListener {
     }
 
     override fun onSensorChanged(event: SensorEvent?) {
-        if (event?.sensor?.type == Sensor.TYPE_GYROSCOPE) {
-            playerVelocity.x = event.values[0] * -1;
-            playerVelocity.y = event.values[1];
+        // Use accelerometer sensor values to control marble tilt
+        if (event?.sensor?.type == Sensor.TYPE_ACCELEROMETER) {
+            // Adjust the axes as needed for your game's control scheme
+            acceleration.x = -event.values[0]
+            acceleration.y = event.values[1]
         }
     }
 
