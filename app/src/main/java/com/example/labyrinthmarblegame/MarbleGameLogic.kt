@@ -9,10 +9,15 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
+import android.util.Log
 import android.view.Gravity
 import android.view.ViewGroup.LayoutParams
 import android.widget.Button
 import android.widget.FrameLayout
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 // Data classes for game entities
 data class Vector2(var x: Float, var y: Float)
@@ -32,7 +37,7 @@ data class GameEntity(
     //var tilesY: Int       // How many times to repeat texture vertically
 )
 
-class MarbleGameLogic(private val context: Context) : SensorEventListener {
+class MarbleGameLogic(context: Context, private val viewModel: MarbleGameViewModel) : SensorEventListener {
     val entities = mutableListOf<GameEntity>()
     private var gameLevels = MarbleGameLevels(context)
 
@@ -55,12 +60,31 @@ class MarbleGameLogic(private val context: Context) : SensorEventListener {
     private var isPlayerReviving = false
     private var animationTimer = 0f
     private val animationDuration = 0.5f
+    private var changingLevels = false
+
+    // Highscore variables
+    private var gameStartTime: Long = 0
+    private var gameCompletionTime: Long = 0
+    private var isTimerRunning = false
 
     init {
         initializeEntities()
         registerSensors()
+        startTimer()
     }
 
+    // Listener for navigating back to main menu/highscores
+    interface GameEventListener {
+        fun onGameCompleted()
+    }
+
+    private var gameEventListener: GameEventListener? = null
+
+    fun setGameEventListener(listener: GameEventListener) {
+        gameEventListener = listener
+    }
+
+    // This is for debug before we had accelerometer working
     fun createButtons(context: Context): List<Button> {
         val buttons = mutableListOf<Button>()
 
@@ -103,6 +127,8 @@ class MarbleGameLogic(private val context: Context) : SensorEventListener {
         // Store starting position for hole collisions
         playerStartingPosition.x = currentLevel.playerStart.x
         playerStartingPosition.y = currentLevel.playerStart.y
+
+        changingLevels = false
     }
 
     private fun registerSensors() {
@@ -118,8 +144,8 @@ class MarbleGameLogic(private val context: Context) : SensorEventListener {
 
         val player = entities.find { it.name == "Player" } ?: return
 
-        // Shrink player while they're falling into a hole
         if (isPlayerDead) {
+            // Shrink player while they're falling into a hole
             animationTimer += deltaTime
             player.scale.x = playerStartingScale.x * (1f - (animationTimer / animationDuration))
             player.scale.y = playerStartingScale.y * (1f - (animationTimer / animationDuration))
@@ -210,7 +236,8 @@ class MarbleGameLogic(private val context: Context) : SensorEventListener {
                     }
                     2 -> { // Goal
                         val otherCircle = entity.toCircle()
-                        if (collisionSystem.checkCircleCircleCollision(playerCircle, otherCircle)) {
+                        if (collisionSystem.checkCircleCircleCollision(playerCircle, otherCircle) && !changingLevels) {
+                            changingLevels = true
                             loadNextLevel()
                         }
                     }
@@ -224,26 +251,53 @@ class MarbleGameLogic(private val context: Context) : SensorEventListener {
         currentLevelNumber++
         // Select the next level based on number
         currentLevel = when (currentLevelNumber) {
-            1 -> {
-                soundPool.play(nextLevelSoundId, 1f, 1f, 0, 0, 1f)
-                gameLevels.Level1
-            }
-            2 -> {
-                soundPool.play(nextLevelSoundId, 1f, 1f, 0, 0, 1f)
-                gameLevels.Level2
-            }
+            1 -> gameLevels.Level1
+            2 -> gameLevels.Level2
             // Add more levels here as needed
             else -> {
+                // Game completed, out of levels
                 soundPool.play(gameClearedSoundId, 1f, 1f, 0, 0, 1f)
+
+                // Stop timer when game is completed
+                stopTimer()
+
+                // Save score to database
+                // Use lifecycleScope to launch the coroutine
+                viewModel.viewModelScope.launch {
+                    val score = MarbleGameScore(
+                        level = currentLevelNumber - 1, // The level player just completed
+                        completionTime = gameCompletionTime,
+                        playerName = viewModel.playerName.value
+                    )
+                    viewModel.insertScore(score)
+                }
+
+                gameEventListener?.onGameCompleted() // Return from this android view
                 return
             }
         }
+        soundPool.play(nextLevelSoundId, 1f, 1f, 0, 0, 1f)
         // Reset player and reload entities
         initializeEntities()
         // Reset player velocity
         playerVelocity = Vector2(0f, 0f)
         acceleration.x = 0f
         acceleration.y = 0f
+    }
+
+    // Start the game timer
+    private fun startTimer() {
+        gameStartTime = System.currentTimeMillis()
+        isTimerRunning = true
+    }
+
+    // Stop the timer and calculate the completion time
+    private fun stopTimer() {
+        if (isTimerRunning) {
+            val endTime = System.currentTimeMillis()
+            gameCompletionTime = (endTime - gameStartTime) / 1000 // Convert to seconds
+            isTimerRunning = false
+        }
     }
 
     override fun onSensorChanged(event: SensorEvent?) {

@@ -15,19 +15,35 @@ import android.view.View
 import android.view.Gravity
 
 // Main game view that contains both the canvas and buttons
-class MarbleGameView(context: Context) : FrameLayout(context) {
+class MarbleGameView(context: Context, viewModel: MarbleGameViewModel) : FrameLayout(context) {
     private val gameCanvas: GameCanvas
-    private val gameLogic: MarbleGameLogic
+    private val gameLogic: MarbleGameLogic = MarbleGameLogic(context, viewModel)
+    // This gameLogic is needed, not sure why I can't pass this as an argument to GameView
+
+    private var navCallback: (() -> Unit)? = null
 
     init {
-        gameLogic = MarbleGameLogic(context)
         gameCanvas = GameCanvas(context, gameLogic)
         addView(gameCanvas)
 
+        // Set up the listener
+        gameLogic.setGameEventListener(object : MarbleGameLogic.GameEventListener {
+            override fun onGameCompleted() {
+                // Call the nav callback on the UI thread
+                post {
+                    navCallback?.invoke()
+                }
+            }
+        })
+
         // Add buttons from game logic
-        gameLogic.createButtons(context).forEach { button ->
-            addView(button)
-        }
+        //gameLogic.createButtons(context).forEach { button ->
+        //    addView(button)
+        //}
+    }
+
+    fun setNavigationCallback(callback: () -> Unit) {
+        navCallback = callback
     }
 }
 

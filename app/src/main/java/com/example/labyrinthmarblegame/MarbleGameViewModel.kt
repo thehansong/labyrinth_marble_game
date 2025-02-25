@@ -9,7 +9,11 @@ class MarbleGameViewModel(private val repository: MarbleGameRepository) : ViewMo
 
     // Private mutable state to modify scores inside ViewModel
     private val _highScores = MutableStateFlow<List<MarbleGameScore>>(emptyList())
-    val highScores: StateFlow<List<MarbleGameScore>> = _highScores.asStateFlow() // Public Read-only
+    val highScores: StateFlow<List<MarbleGameScore>> = _highScores.asStateFlow() // Public read-only
+
+    // Mutable state for the player's name
+    private val _playerName = MutableStateFlow("Player")
+    val playerName: StateFlow<String> = _playerName.asStateFlow()
 
     init {
         loadHighScores()
@@ -20,7 +24,7 @@ class MarbleGameViewModel(private val repository: MarbleGameRepository) : ViewMo
             repository.topHighScores
                 .map { it.sortedByDescending { score -> score.completionTime }.take(10) }
                 .collect { scores ->
-                    _highScores.value = scores // Correct way to update MutableStateFlow
+                    _highScores.value = scores // Update scores in UI
                 }
         }
     }
@@ -37,5 +41,10 @@ class MarbleGameViewModel(private val repository: MarbleGameRepository) : ViewMo
             repository.clearScores()
             _highScores.value = emptyList() // Clear scores in UI
         }
+    }
+
+    // Update the player's name
+    fun updatePlayerName(newName: String) {
+        _playerName.value = newName
     }
 }
