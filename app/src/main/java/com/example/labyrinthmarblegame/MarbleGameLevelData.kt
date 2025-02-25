@@ -149,7 +149,7 @@ class MarbleGameLevels(private val context: Context) {
             LevelWall(Vector2(-5f, -10f), Vector2(-5f, 8f)),   // Left
             LevelWall(Vector2(5f, -10f), Vector2(5f, 8f)),     // Right
 
-            // Inner
+            // Inner wall
             LevelWall(Vector2(-2.5f, -1f), Vector2(2.5f, -1f)),
         ),
         holes = listOf(
@@ -169,7 +169,7 @@ class MarbleGameLevels(private val context: Context) {
             LevelWall(Vector2(-5f, -10f), Vector2(-5f, 8f)),   // Left
             LevelWall(Vector2(5f, -10f), Vector2(5f, 8f)),     // Right
 
-            // Inner
+            // Inner walls
             LevelWall(Vector2(-2f, 3f), Vector2(4.5f, 3f)),
             LevelWall(Vector2(0.5f, -1f), Vector2(0.5f, 2.5f)),
             LevelWall(Vector2(-3f, -1f), Vector2(0f, -1f)),
@@ -197,7 +197,7 @@ class MarbleGameLevels(private val context: Context) {
             LevelWall(Vector2(-5f, -10f), Vector2(-5f, 8f)),
             LevelWall(Vector2(5f, -10f), Vector2(5f, 8f)),
 
-            // Inner
+            // Inner walls
             LevelWall(Vector2(-4.5f, 3.5f), Vector2(-3f, 3.5f)),
             LevelWall(Vector2(-2.5f, 3f), Vector2(-2.5f, 4f)),
             LevelWall(Vector2(2.5f, 3f), Vector2(2.5f, 4f)),
@@ -233,16 +233,34 @@ class MarbleGameLevels(private val context: Context) {
             LevelWall(Vector2(-5f, -10f), Vector2(-5f, 8f)),
             LevelWall(Vector2(5f, -10f), Vector2(5f, 8f)),
 
-            // Zigzag pattern
-            LevelWall(Vector2(-5f, -6f), Vector2(2f, -6f)),
-            LevelWall(Vector2(-2f, -2f), Vector2(5f, -2f)),
-            LevelWall(Vector2(-5f, 2f), Vector2(2f, 2f)),
-            LevelWall(Vector2(-2f, 6f), Vector2(5f, 6f))
+            // Inner walls
+            LevelWall(Vector2(-2.5f, -6f), Vector2(0.5f, -6f)),
+            LevelWall(Vector2(0f, -7.5f), Vector2(0f, -5.5f)),
+            LevelWall(Vector2(2.5f, -7.5f), Vector2(2.5f, -6f)),
+            LevelWall(Vector2(3f, -6f), Vector2(4.5f, -6f)),
+            LevelWall(Vector2(-4.5f, -3.5f), Vector2(-2.5f, -3.5f)),
+            LevelWall(Vector2(0f, -3.5f), Vector2(0f, -1.5f)),
+            LevelWall(Vector2(2f, -3.5f), Vector2(3f, -3.5f)),
+            LevelWall(Vector2(2.5f, -4f), Vector2(2.5f, -3f)),
+            LevelWall(Vector2(-1.5f, -1f), Vector2(2.5f, -1f)),
+            LevelWall(Vector2(-1.5f, -0.5f), Vector2(-1.5f, 3f)),
+            LevelWall(Vector2(-3f, 1f), Vector2(-2f, 1f)),
+            LevelWall(Vector2(0.5f, 1f), Vector2(4.5f, 1f)),
+            LevelWall(Vector2(0.5f, 3f), Vector2(1.5f, 3f)),
+            LevelWall(Vector2(1.5f, 3.5f), Vector2(1.5f, 6f)),
+            LevelWall(Vector2(-4.5f, 5f), Vector2(-1f, 5f)),
+            LevelWall(Vector2(3.5f, 4.5f), Vector2(4.5f, 4.5f)),
         ),
         holes = listOf(
-            LevelHole(Vector2(-4f, -4f)),
-            LevelHole(Vector2(4f, 0f)),
-            LevelHole(Vector2(-4f, 4f))
+            LevelHole(Vector2(4f, -9f)),
+            LevelHole(Vector2(-1f, -7f)),
+            LevelHole(Vector2(4f, -5f)),
+            LevelHole(Vector2(-4f, -4.5f)),
+            LevelHole(Vector2(-4f, -2.5f)),
+            LevelHole(Vector2(4f, 2f)),
+            LevelHole(Vector2(-4f, 3f)),
+            LevelHole(Vector2(0.5f, 4f)),
+            LevelHole(Vector2(4f, 7f)),
         ),
         goals = listOf(
             LevelGoal(Vector2(-3.5f, -8.5f))
@@ -258,16 +276,36 @@ class MarbleGameLevels(private val context: Context) {
             LevelWall(Vector2(-5f, -10f), Vector2(-5f, 8f)),
             LevelWall(Vector2(5f, -10f), Vector2(5f, 8f)),
 
-            // Zigzag pattern
-            LevelWall(Vector2(-5f, -6f), Vector2(2f, -6f)),
-            LevelWall(Vector2(-2f, -2f), Vector2(5f, -2f)),
-            LevelWall(Vector2(-5f, 2f), Vector2(2f, 2f)),
-            LevelWall(Vector2(-2f, 6f), Vector2(5f, 6f))
+            // Inner walls
+            LevelWall(Vector2(-2.5f, -8f), Vector2(-1.5f, -8f)),
+            LevelWall(Vector2(-1.5f, -7.5f), Vector2(-1.5f, -4f)),
+            LevelWall(Vector2(-3f, -4f), Vector2(-2f, -4f)),
+            LevelWall(Vector2(-4.5f, -6f), Vector2(-3.5f, -6f)),
+            LevelWall(Vector2(0.5f, -8f), Vector2(3f, -8f)),
+            LevelWall(Vector2(0.5f, -7.5f), Vector2(0.5f, -6f)),
+            LevelWall(Vector2(2.5f, -5.5f), Vector2(3.5f, -5.5f)),
+            LevelWall(Vector2(0.5f, -3.5f), Vector2(0.5f, -1.5f)),
+            LevelWall(Vector2(-4.5f, -1f), Vector2(3f, -1f)),
+            LevelWall(Vector2(2.5f, -3f), Vector2(4.5f, -3f)),
+            LevelWall(Vector2(-1f, -0.5f), Vector2(-1f, 2.5f)),
+            LevelWall(Vector2(-3f, 3f), Vector2(0f, 3f)),
+            LevelWall(Vector2(-2f, 3.5f), Vector2(-2f, 5f)),
+            LevelWall(Vector2(1f, 1f), Vector2(3f, 1f)),
+            LevelWall(Vector2(2f, 1.5f), Vector2(2f, 3.5f)),
+            LevelWall(Vector2(4f, 3f), Vector2(4.5f, 3f)),
+            LevelWall(Vector2(0f, 6f), Vector2(0f, 7.5f)),
+            LevelWall(Vector2(2f, 6f), Vector2(4.5f, 6f)),
         ),
         holes = listOf(
-            LevelHole(Vector2(-4f, -4f)),
-            LevelHole(Vector2(4f, 0f)),
-            LevelHole(Vector2(-4f, 4f))
+            LevelHole(Vector2(-4f, -9f)),
+            LevelHole(Vector2(1.5f, -7f)),
+            LevelHole(Vector2(0f, -5f)),
+            LevelHole(Vector2(-0.5f, -2f)),
+            LevelHole(Vector2(0f, 0f)),
+            LevelHole(Vector2(-3f, 4f)),
+            LevelHole(Vector2(4f, 5f)),
+            LevelHole(Vector2(-4f, 7f)),
+            LevelHole(Vector2(4f, 7f)),
         ),
         goals = listOf(
             LevelGoal(Vector2(-3.5f, -2.5f))
@@ -283,16 +321,45 @@ class MarbleGameLevels(private val context: Context) {
             LevelWall(Vector2(-5f, -10f), Vector2(-5f, 8f)),
             LevelWall(Vector2(5f, -10f), Vector2(5f, 8f)),
 
-            // Zigzag pattern
-            LevelWall(Vector2(-5f, -6f), Vector2(2f, -6f)),
-            LevelWall(Vector2(-2f, -2f), Vector2(5f, -2f)),
-            LevelWall(Vector2(-5f, 2f), Vector2(2f, 2f)),
-            LevelWall(Vector2(-2f, 6f), Vector2(5f, 6f))
+            // Inner walls
+            LevelWall(Vector2(0f, -8.5f), Vector2(3.5f, -8.5f)),
+            LevelWall(Vector2(3.5f, -8f), Vector2(3.5f, -6f)),
+            LevelWall(Vector2(-0.5f, -6.5f), Vector2(1.5f, -6.5f)),
+            LevelWall(Vector2(-2f, -7f), Vector2(-2f, -5.5f)),
+            LevelWall(Vector2(-4.5f, -5f), Vector2(1.5f, -5f)),
+            LevelWall(Vector2(-3f, -4.5f), Vector2(-3f, -4f)),
+            LevelWall(Vector2(1.5f, -4.5f), Vector2(1.5f, -4.5f)),
+            LevelWall(Vector2(-0.5f, -2.5f), Vector2(4.5f, -2.5f)),
+            LevelWall(Vector2(-0.5f, -2f), Vector2(-0.5f, -1f)),
+            LevelWall(Vector2(-1f, -1f), Vector2(-1f, -1f)),
+            LevelWall(Vector2(-3f, -1f), Vector2(-3f, 1.5f)),
+            LevelWall(Vector2(-4.5f, 0f), Vector2(-3.5f, 0f)),
+            LevelWall(Vector2(-0.5f, 1f), Vector2(0f, 1f)),
+            LevelWall(Vector2(-0.5f, 1.5f), Vector2(-0.5f, 2.5f)),
+            LevelWall(Vector2(-1f, 3f), Vector2(0f, 3f)),
+            LevelWall(Vector2(2f, 2.5f), Vector2(2f, 3.5f)),
+            LevelWall(Vector2(2.5f, 3.5f), Vector2(3f, 3.5f)),
+            LevelWall(Vector2(3f, -0.5f), Vector2(3f, 0.5f)),
+            LevelWall(Vector2(2.5f, 1f), Vector2(4.5f, 1f)),
+            LevelWall(Vector2(-3f, 5f), Vector2(-3f, 6.5f)),
+            LevelWall(Vector2(-4.5f, 6f), Vector2(-4.5f, 6f)),
+            LevelWall(Vector2(-1f, 5f), Vector2(4.5f, 5f)),
+            LevelWall(Vector2(-1f, 5.5f), Vector2(-1f, 6.5f)),
+            LevelWall(Vector2(2f, 7f), Vector2(2f, 7.5f)),
         ),
         holes = listOf(
+            LevelHole(Vector2(0.5f, 6f)),
+            LevelHole(Vector2(-4f, 3.5f)),
+            LevelHole(Vector2(-2.5f, 3f)),
+            LevelHole(Vector2(4f, 2f)),
+            LevelHole(Vector2(0.5f, -1.5f)),
+            LevelHole(Vector2(-4f, -1f)),
+            LevelHole(Vector2(4f, -3.5f)),
+            LevelHole(Vector2(0.5f, -4f)),
             LevelHole(Vector2(-4f, -4f)),
-            LevelHole(Vector2(4f, 0f)),
-            LevelHole(Vector2(-4f, 4f))
+            LevelHole(Vector2(2.5f, -7.5f)),
+            LevelHole(Vector2(-1.5f, -8f)),
+            LevelHole(Vector2(-4f, -9f)),
         ),
         goals = listOf(
             LevelGoal(Vector2(-3.5f, -6f))

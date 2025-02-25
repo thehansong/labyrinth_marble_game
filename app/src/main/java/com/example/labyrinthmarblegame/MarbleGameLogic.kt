@@ -253,6 +253,9 @@ class MarbleGameLogic(context: Context, private val viewModel: MarbleGameViewMod
         currentLevel = when (currentLevelNumber) {
             1 -> gameLevels.level1
             2 -> gameLevels.level2
+            3 -> gameLevels.level3
+            4 -> gameLevels.level4
+            5 -> gameLevels.level5
 
             else -> {
                 // Game completed, out of levels
