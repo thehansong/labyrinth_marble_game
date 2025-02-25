@@ -46,8 +46,14 @@ class MainActivity : ComponentActivity() {
         val database = MarbleGameDatabase.getDatabase(applicationContext)
         val repository = MarbleGameRepository(database.marbleGameDao())
 
+        // Initialize the game
         sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
-        gameLogic = MarbleGameLogic(this) // This now handles sensors internally
+        gameLogic = MarbleGameLogic(this)
+
+        // Initialize sounds
+        initBGM(this)
+        initSounds(this)
+        bgmPlayer.start()
 
         val viewModel = ViewModelProvider(
             this,
@@ -70,6 +76,26 @@ class MainActivity : ComponentActivity() {
             viewModel.insertScore(MarbleGameScore(level = 1, completionTime = 20, playerName = "David"))
             viewModel.insertScore(MarbleGameScore(level = 1, completionTime = 35, playerName = "Eve"))
         }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        if (bgmPlayer.isPlaying) {
+            bgmPlayer.pause()
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (!bgmPlayer.isPlaying) {
+            bgmPlayer.start()
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        bgmPlayer.release()
+        soundPool.release()
     }
 }
 

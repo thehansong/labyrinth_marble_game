@@ -180,6 +180,12 @@ class MarbleGameLogic(private val context: Context) : SensorEventListener {
                         collisionSystem.checkCircleRectangleCollision(playerCircle, wallRect)?.let { (collisionPoint, normal) ->
                             player.position.x = previousX
                             player.position.y = previousY
+
+                            val impactSpeed = kotlin.math.sqrt(playerVelocity.x * playerVelocity.x + playerVelocity.y * playerVelocity.y)
+                            if (impactSpeed > 10f) {
+                                soundPool.play(wallCollisionSoundId, 1f, 1f, 0, 0, 1f)
+                            }
+
                             if (kotlin.math.abs(normal.x) > 0.1f) {
                                 playerVelocity.x *= -0.5f
                                 acceleration.x = 0f
@@ -199,6 +205,7 @@ class MarbleGameLogic(private val context: Context) : SensorEventListener {
                             playerStartingScale.y = player.scale.y
                             isPlayerDead = true
                             animationTimer = 0f
+                            soundPool.play(gameRestartSoundId, 1f, 1f, 0, 0, 1f)
                         }
                     }
                     2 -> { // Goal
@@ -217,12 +224,17 @@ class MarbleGameLogic(private val context: Context) : SensorEventListener {
         currentLevelNumber++
         // Select the next level based on number
         currentLevel = when (currentLevelNumber) {
-            1 -> gameLevels.Level1
-            2 -> gameLevels.Level2
+            1 -> {
+                soundPool.play(nextLevelSoundId, 1f, 1f, 0, 0, 1f)
+                gameLevels.Level1
+            }
+            2 -> {
+                soundPool.play(nextLevelSoundId, 1f, 1f, 0, 0, 1f)
+                gameLevels.Level2
+            }
             // Add more levels here as needed
             else -> {
-                // Completed all levels
-                // Need a way to return
+                soundPool.play(gameClearedSoundId, 1f, 1f, 0, 0, 1f)
                 return
             }
         }
