@@ -32,9 +32,9 @@ data class GameEntity(
     var rotation: Float,
     var color: Vector3,
     var texture: Bitmap? = null,
-    //var isTiled: Boolean,
-    //var tilesX: Int,      // How many times to repeat texture horizontally
-    //var tilesY: Int       // How many times to repeat texture vertically
+    var isTiled: Boolean = false,
+    var tilesX: Int = 0,      // How many times to repeat texture horizontally
+    var tilesY: Int = 0       // How many times to repeat texture vertically
 )
 
 class MarbleGameLogic(context: Context, private val viewModel: MarbleGameViewModel) : SensorEventListener {
@@ -46,8 +46,8 @@ class MarbleGameLogic(context: Context, private val viewModel: MarbleGameViewMod
     private val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
     private val collisionSystem = CollisionSystem()
 
-    private var currentLevel = gameLevels.Level1  // Start with level 1
-    private var currentLevelNumber = 1
+    private var currentLevel = gameLevels.tutorial
+    private var currentLevelNumber = 0
 
     private var playerVelocity = Vector2(0f, 0f)
     private val acceleration = Vector2(0f, 0f)
@@ -251,9 +251,9 @@ class MarbleGameLogic(context: Context, private val viewModel: MarbleGameViewMod
         currentLevelNumber++
         // Select the next level based on number
         currentLevel = when (currentLevelNumber) {
-            1 -> gameLevels.Level1
-            2 -> gameLevels.Level2
-            // Add more levels here as needed
+            1 -> gameLevels.level1
+            2 -> gameLevels.level2
+
             else -> {
                 // Game completed, out of levels
                 soundPool.play(gameClearedSoundId, 1f, 1f, 0, 0, 1f)

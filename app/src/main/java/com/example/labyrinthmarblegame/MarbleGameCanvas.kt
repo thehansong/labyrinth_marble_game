@@ -3,11 +3,14 @@ package com.example.labyrinthmarblegame
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.BitmapShader
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.ColorMatrixColorFilter
+import android.graphics.Matrix
 import android.graphics.Paint
 import android.graphics.RectF
+import android.graphics.Shader
 import android.view.MotionEvent
 import android.widget.Button
 import android.widget.FrameLayout
@@ -101,7 +104,7 @@ private class GameCanvas(context: Context, private val gameLogic: MarbleGameLogi
         )
 
         if (entity.texture == null) {
-            // Draw using a solid color
+            // Draw solid color
             paint.reset()
             paint.color = Color.rgb(
                 (entity.color.r * 255).toInt(),
@@ -111,16 +114,26 @@ private class GameCanvas(context: Context, private val gameLogic: MarbleGameLogi
             paint.style = Paint.Style.FILL
             canvas.drawRect(drawRect, paint)
         } else {
-            // Draw using the texture (bitmap)
+            // Use BitmapShader for tiling
             entity.texture?.let { bitmap ->
-                paint.reset()
-                paint.colorFilter = ColorMatrixColorFilter(floatArrayOf(
-                    entity.color.r, 0f, 0f, 0f, 0f,
-                    0f, entity.color.g, 0f, 0f, 0f,
-                    0f, 0f, entity.color.b, 0f, 0f,
-                    0f, 0f, 0f, 1f, 0f
-                ))
-                canvas.drawBitmap(bitmap, null, drawRect, paint)
+                if (entity.isTiled) {
+                    val shader = BitmapShader(bitmap, Shader.TileMode.REPEAT, Shader.TileMode.REPEAT)
+                    paint.shader = shader
+
+                    // Scale the texture according to tilesX and tilesY
+                    val matrix = Matrix()
+                    matrix.setScale(
+                        entity.tilesX / entity.scale.x,
+                        entity.tilesY / entity.scale.y
+                    )
+                    shader.setLocalMatrix(matrix)
+
+                    canvas.drawRect(drawRect, paint)
+                } else {
+                    // Regular texture rendering
+                    paint.shader = null
+                    canvas.drawBitmap(bitmap, null, drawRect, paint)
+                }
             }
         }
     }

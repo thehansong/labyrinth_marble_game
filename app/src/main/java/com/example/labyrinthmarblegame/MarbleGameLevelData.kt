@@ -56,15 +56,15 @@ class MarbleGameLevels(private val context: Context) {
             ),
             // Switch x and y based on the wall's orientation
             scale = if (kotlin.math.abs(dx) > kotlin.math.abs(dy)) {
-                // Horizontal wall
-                Vector2(length, wallThickness)
+                // Horizontal wall: add wallThickness to x-axis
+                Vector2(length + wallThickness, wallThickness)
             } else {
-                // Vertical wall
-                Vector2(wallThickness, length)
+                // Vertical wall: add wallThickness to y-axis
+                Vector2(wallThickness, length + wallThickness)
             },
             rotation = angle,
-            color = Vector3(1f, 1f, 1f),
-            texture = BitmapFactory.decodeResource(context.resources, R.drawable.block_square)
+            color = Vector3(0.3f, 1f, 0.3f),
+            //texture = BitmapFactory.decodeResource(context.resources, R.drawable.block_square),
         )
     }
 
@@ -82,7 +82,10 @@ class MarbleGameLevels(private val context: Context) {
             scale = Vector2(levelWidth, levelHeight),
             rotation = 0f,
             color = Vector3(0.5f, 0.5f, 0.5f),
-            //BitmapFactory.decodeResource(context.resources, R.drawable.ball_blue_small)
+            BitmapFactory.decodeResource(context.resources, R.drawable.background_brown),
+            true,
+            levelWidth.toInt(),
+            levelHeight.toInt()
         ))
 
         // Create walls
@@ -137,26 +140,92 @@ class MarbleGameLevels(private val context: Context) {
     }
 
     // Define levels
-    val Level1 = LevelData(
-        playerStart = Vector2(0f, 0f),
+    val tutorial = LevelData(
+        playerStart = Vector2(0f, 5.5f),
         walls = listOf(
             // Outer bounds
             LevelWall(Vector2(-5f, -10f), Vector2(5f, -10f)),  // Top
             LevelWall(Vector2(-5f, 8f), Vector2(5f, 8f)),      // Bottom
             LevelWall(Vector2(-5f, -10f), Vector2(-5f, 8f)),   // Left
             LevelWall(Vector2(5f, -10f), Vector2(5f, 8f)),     // Right
+
+            // Inner
+            LevelWall(Vector2(-2.5f, -1f), Vector2(2.5f, -1f)),
         ),
         holes = listOf(
-            LevelHole(Vector2(-3f, -2f)),
-            LevelHole(Vector2(3f, -2f))
+
         ),
         goals = listOf(
-            LevelGoal(Vector2(0f, 6f))
+            LevelGoal(Vector2(0f, -7.5f))
         )
     )
 
-    val Level2 = LevelData(
-        playerStart = Vector2(0f, -8f),
+    val level1 = LevelData(
+        playerStart = Vector2(0f, 5.5f),
+        walls = listOf(
+            // Outer bounds
+            LevelWall(Vector2(-5f, -10f), Vector2(5f, -10f)),  // Top
+            LevelWall(Vector2(-5f, 8f), Vector2(5f, 8f)),      // Bottom
+            LevelWall(Vector2(-5f, -10f), Vector2(-5f, 8f)),   // Left
+            LevelWall(Vector2(5f, -10f), Vector2(5f, 8f)),     // Right
+
+            // Inner
+            LevelWall(Vector2(-2f, 3f), Vector2(4.5f, 3f)),
+            LevelWall(Vector2(0.5f, -1f), Vector2(0.5f, 2.5f)),
+            LevelWall(Vector2(-3f, -1f), Vector2(0f, -1f)),
+            LevelWall(Vector2(-4.5f, 1f), Vector2(-1.5f, 1f)),
+            LevelWall(Vector2(2.5f, 1f), Vector2(4.5f, 1f)),
+            LevelWall(Vector2(-4.5f, -3f), Vector2(3f, -3f)),
+            LevelWall(Vector2(3f, -2.5f), Vector2(3f, -1f)),
+            LevelWall(Vector2(2.5f, -1f), Vector2(2.5f, -1f)),
+            LevelWall(Vector2(-2f, -5f), Vector2(4.5f, -5f)),
+        ),
+        holes = listOf(
+
+        ),
+        goals = listOf(
+            LevelGoal(Vector2(0f, -7.5f))
+        )
+    )
+
+    val level2 = LevelData(
+        playerStart = Vector2(0f, 5.5f),
+        walls = listOf(
+            // Outer bounds
+            LevelWall(Vector2(-5f, -10f), Vector2(5f, -10f)),
+            LevelWall(Vector2(-5f, 8f), Vector2(5f, 8f)),
+            LevelWall(Vector2(-5f, -10f), Vector2(-5f, 8f)),
+            LevelWall(Vector2(5f, -10f), Vector2(5f, 8f)),
+
+            // Inner
+            LevelWall(Vector2(-4.5f, 3.5f), Vector2(-3f, 3.5f)),
+            LevelWall(Vector2(-2.5f, 3f), Vector2(-2.5f, 4f)),
+            LevelWall(Vector2(2.5f, 3f), Vector2(2.5f, 4f)),
+            LevelWall(Vector2(3f, 3.5f), Vector2(4.5f, 3.5f)),
+            LevelWall(Vector2(0f, 0.5f), Vector2(0f, 2f)),
+            LevelWall(Vector2(-4.5f, 0f), Vector2(2.5f, 0f)),
+            LevelWall(Vector2(-4.5f, -3.5f), Vector2(-3f, -3.5f)),
+            LevelWall(Vector2(-2.5f, -4f), Vector2(-2.5f, -3f)),
+            LevelWall(Vector2(2.5f, -4f), Vector2(2.5f, -3f)),
+            LevelWall(Vector2(3f, -3.5f), Vector2(4.5f, -3.5f)),
+            LevelWall(Vector2(-1f, -5.5f), Vector2(0.5f, -5.5f)),
+            LevelWall(Vector2(0.5f, -8f), Vector2(0.5f, -6f)),
+            LevelWall(Vector2(2.5f, -7f), Vector2(4.5f, -7f)),
+        ),
+        holes = listOf(
+            LevelHole(Vector2(-0.5f, -6.5f)),
+            LevelHole(Vector2(4f, -6f)),
+            LevelHole(Vector2(-4f, -2.5f)),
+            LevelHole(Vector2(4f, 2.5f)),
+            LevelHole(Vector2(-4f, 7f)),
+        ),
+        goals = listOf(
+            LevelGoal(Vector2(3.5f, -8.5f))
+        )
+    )
+
+    val level3 = LevelData(
+        playerStart = Vector2(-3.5f, 6.5f),
         walls = listOf(
             // Outer bounds
             LevelWall(Vector2(-5f, -10f), Vector2(5f, -10f)),
@@ -176,7 +245,57 @@ class MarbleGameLevels(private val context: Context) {
             LevelHole(Vector2(-4f, 4f))
         ),
         goals = listOf(
-            LevelGoal(Vector2(0f, 7f))
+            LevelGoal(Vector2(-3.5f, -8.5f))
+        )
+    )
+
+    val level4 = LevelData(
+        playerStart = Vector2(-3f, 0.5f),
+        walls = listOf(
+            // Outer bounds
+            LevelWall(Vector2(-5f, -10f), Vector2(5f, -10f)),
+            LevelWall(Vector2(-5f, 8f), Vector2(5f, 8f)),
+            LevelWall(Vector2(-5f, -10f), Vector2(-5f, 8f)),
+            LevelWall(Vector2(5f, -10f), Vector2(5f, 8f)),
+
+            // Zigzag pattern
+            LevelWall(Vector2(-5f, -6f), Vector2(2f, -6f)),
+            LevelWall(Vector2(-2f, -2f), Vector2(5f, -2f)),
+            LevelWall(Vector2(-5f, 2f), Vector2(2f, 2f)),
+            LevelWall(Vector2(-2f, 6f), Vector2(5f, 6f))
+        ),
+        holes = listOf(
+            LevelHole(Vector2(-4f, -4f)),
+            LevelHole(Vector2(4f, 0f)),
+            LevelHole(Vector2(-4f, 4f))
+        ),
+        goals = listOf(
+            LevelGoal(Vector2(-3.5f, -2.5f))
+        )
+    )
+
+    val level5 = LevelData(
+        playerStart = Vector2(3.5f, 6.5f),
+        walls = listOf(
+            // Outer bounds
+            LevelWall(Vector2(-5f, -10f), Vector2(5f, -10f)),
+            LevelWall(Vector2(-5f, 8f), Vector2(5f, 8f)),
+            LevelWall(Vector2(-5f, -10f), Vector2(-5f, 8f)),
+            LevelWall(Vector2(5f, -10f), Vector2(5f, 8f)),
+
+            // Zigzag pattern
+            LevelWall(Vector2(-5f, -6f), Vector2(2f, -6f)),
+            LevelWall(Vector2(-2f, -2f), Vector2(5f, -2f)),
+            LevelWall(Vector2(-5f, 2f), Vector2(2f, 2f)),
+            LevelWall(Vector2(-2f, 6f), Vector2(5f, 6f))
+        ),
+        holes = listOf(
+            LevelHole(Vector2(-4f, -4f)),
+            LevelHole(Vector2(4f, 0f)),
+            LevelHole(Vector2(-4f, 4f))
+        ),
+        goals = listOf(
+            LevelGoal(Vector2(-3.5f, -6f))
         )
     )
 }
